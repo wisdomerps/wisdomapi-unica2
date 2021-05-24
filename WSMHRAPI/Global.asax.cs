@@ -12,7 +12,7 @@ namespace WSMHRAPI
     public class WebApiApplication : System.Web.HttpApplication
     {
         protected void Application_Start()
-        {//best test...
+        {//best test...dev
 
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
