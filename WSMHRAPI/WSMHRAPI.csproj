@@ -199,6 +199,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\ActionLeaveController.cs" />
     <Compile Include="Controllers\CreateLeaveController.cs" />
+    <Compile Include="Controllers\GetDateShiftController.cs" />
     <Compile Include="Controllers\GetPermissionLeaveController.cs" />
     <Compile Include="Controllers\EmployeeController.cs" />
     <Compile Include="Controllers\GetListLeaveApproveController.cs" />
