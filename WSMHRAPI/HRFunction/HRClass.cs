@@ -606,7 +606,12 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " , FNHSysEmpID, FTStartDate, FTEndDate,FTHoliday, FNLeaveTotalDay";
                     _Qry += Constants.vbCrLf + " , FTLeaveType,  FTLeavePay";
                     _Qry += Constants.vbCrLf + " , FTLeaveStartTime, FTLeaveEndTime, FNLeaveTotalTime,FNLeaveTotalTimeMin, FTLeaveNote";
-                    _Qry += Constants.vbCrLf + " ,FTApproveState,FTStaCalSSO,FTStaLeaveDay,FTStateMedicalCertificate,FTMedicalCertificateName, FBFileRef, FBFile ";
+                    _Qry += Constants.vbCrLf + " ,FTApproveState,FTStaCalSSO,FTStaLeaveDay,FTStateMedicalCertificate,FTMedicalCertificateName ";
+                    if (ExtentionFile != null)
+                    {
+                        _Qry += Constants.vbCrLf + " , FBFileRef, FBFile ";
+                    }
+
                     _Qry += Constants.vbCrLf + " , FTSendApproveState,FDSendApproveDate,FTSendApproveTime,FTSendApproveBy )";
 
                     _Qry += Constants.vbCrLf + " VALUES ('"+ username + "'," + FormatDateDB + "";
@@ -627,17 +632,19 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,'" + FTStateCalSSo + "'";
                     _Qry += Constants.vbCrLf + " ,'" +  FNLeaveDay +  "'";
                     _Qry += Constants.vbCrLf + " ,'" + FTStateMedicalCertificate + "','' ";
-                    _Qry += Constants.vbCrLf + " ,@attfile";
-                    _Qry += Constants.vbCrLf + " ,'" + ExtentionFile + "'";
-
+                    if (ExtentionFile != null)
+                    {
+                        _Qry += Constants.vbCrLf + " ,@attfile";
+                        _Qry += Constants.vbCrLf + " ,'" + ExtentionFile + "'";
+                    }
                     _Qry += Constants.vbCrLf + " ,'" + "1" + "'";
-                    _Qry += Constants.vbCrLf + " ,'" + FormatDateDB + "'";
-                    _Qry += Constants.vbCrLf + " ,'" + FormatTimeDB + "'";
+                    _Qry += Constants.vbCrLf + " ," + FormatDateDB + "";
+                    _Qry += Constants.vbCrLf + " ," + FormatTimeDB + "";
                     _Qry += Constants.vbCrLf + " ,'" + username + "'";
 
 
 
-                    _Qry += Constants.vbCrLf + "')";
+                    _Qry += Constants.vbCrLf + ")";
 
 
 
@@ -657,7 +664,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,FTLeaveNote = N'" + remark + "'";
                     _Qry += Constants.vbCrLf + " ,FNLeaveTotalTime='" + FNNetTime+"'";
                     _Qry += Constants.vbCrLf + " ,FNLeaveTotalTimeMin='" + ocetotaltime+"'";
-                    _Qry += Constants.vbCrLf + " ,FTApproveState='0' ,FTSendApproveState='0'  , FTMngApproveState='0'  ,FTDirApproveState = '0'";
+                    _Qry += Constants.vbCrLf + " ,FTApproveState='0'  , FTMngApproveState='0'  ,FTDirApproveState = '0'";
 
                     _Qry += Constants.vbCrLf + ", FDMngApproveDate =NULL";
                     _Qry += Constants.vbCrLf + ", FTMngApproveTime =NULL";
@@ -673,10 +680,11 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,FTStateMedicalCertificate= '" + FTStateMedicalCertificate + "'";
                     _Qry += Constants.vbCrLf + " ,FTMedicalCertificateName='" + "" + "' ";
 
-                   
+                    if (ExtentionFile != null)
+                    {
                         _Qry += Constants.vbCrLf + ", FBFileRef = @attfile ";
                         _Qry += Constants.vbCrLf + ", FBFile = '" + ExtentionFile + "'";
-
+                    }
                     _Qry += Constants.vbCrLf + ", FTSendApproveState = '1'";
                     _Qry += Constants.vbCrLf + ", FDSendApproveDate = " + FormatDateDB + "";
                     _Qry += Constants.vbCrLf + ", FTSendApproveTime=" + FormatTimeDB + "";
@@ -707,7 +715,10 @@ namespace WSMHRAPI.HRFunction
                     _Cmd.CommandTimeout = 0;
                     _Cmd.CommandType = CommandType.Text;
                     _Cmd.CommandText = _Qry;
-                    _Cmd.Parameters.Add("@attfile", SqlDbType.VarBinary).Value = attFile;
+                    if (ExtentionFile != null)
+                    {
+                        _Cmd.Parameters.Add("@attfile", SqlDbType.VarBinary).Value = attFile;
+                    }
                     _Cmd.ExecuteNonQuery();
                     _Cmd.Parameters.Clear();
 
