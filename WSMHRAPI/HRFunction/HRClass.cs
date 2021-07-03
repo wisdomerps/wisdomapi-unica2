@@ -464,7 +464,7 @@ namespace WSMHRAPI.HRFunction
                 double nNextDay = 0;
                 int _TotalDay = 0;
                 bool _SkipProcess = false;
-                bool _WeekEnd;
+                int _WeekEnd;
 
                 string FTStateNotMergeHoliday = "1";
 
@@ -474,7 +474,7 @@ namespace WSMHRAPI.HRFunction
                     foreach (DateTime day in EachDay(_NextProcDate, _EndProcDate))
                     {
                         // _WeekEnd = DayOfWeek((_NextProcDate), Microsoft.VisualBasic.FirstDayOfWeek.Sunday);
-                        _WeekEnd = (_NextProcDate.DayOfWeek == DayOfWeek.Sunday);
+                        _WeekEnd = Weekday(_NextProcDate , DayOfWeek.Sunday);
                         _SkipProcess = false;
 
                         if (FTStateNotMergeHoliday == "1")
@@ -482,27 +482,40 @@ namespace WSMHRAPI.HRFunction
 
                             if (_SkipProcess == false)
                             {
-                                foreach (DataRow Dr in _dtHoliday.Select("   FDHolidayDate  = '" + (_NextProcDate) + "' "))
+                                foreach (DataRow Rday in _dtWeekend.Rows)
+                                {
+                                    if (_WeekEnd.ToString() == "0")
+                                    {
+                                        _SkipProcess = true;
+                                    }
+
+                                }
+
+
+
+                                foreach (DataRow Dr in _dtHoliday.Select("   FDHolidayDate  = '" + ConvertEnDB(_NextProcDate) + "' "))
                                 {
                                     _SkipProcess = true;
 
                                 }
 
-                                foreach (DataRow Dr in _EmpTypeWeekly.Select("   FDHolidayDate  = '" + (_NextProcDate) + "' "))
+                                foreach (DataRow Dr in _EmpTypeWeekly.Select("   FDHolidayDate  = '" + ConvertEnDB(_NextProcDate) + "' "))
                                 {
                                     _SkipProcess = true;
 
                                 }
 
                             }
-                            if (_SkipProcess == false)
-                            {
-                                _TotalDay = _TotalDay + 1;
-                            }
+                           
 
+                        }
+                        if (_SkipProcess == false)
+                        {
+                            _TotalDay = _TotalDay + 1;
                         }
 
 
+                        _NextProcDate = _NextProcDate.AddDays(1);
                     }
 
                 }
@@ -525,6 +538,23 @@ namespace WSMHRAPI.HRFunction
         {
             for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
                 yield return day;
+        }
+
+        //public int Weekday(DateTime DateValue, FirstDayOfWeek DayOfWeek = FirstDayOfWeek.Sunday)
+        //{
+        //    return 1;
+        //}
+
+        private static int Weekday(DateTime date, DayOfWeek startDay)
+        {
+            int diff;
+            DayOfWeek dow = date.DayOfWeek;
+            diff = dow - startDay;
+            if (diff < 0)
+            {
+                diff += 7;
+            }
+            return diff;
         }
 
         public static string GETUserName(string fnhsysempid)

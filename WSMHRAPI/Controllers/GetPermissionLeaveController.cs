@@ -113,11 +113,15 @@ namespace WSMHRAPI.Controllers
 
             LeaveVacation = double.Parse(Cnn.GetField(_Qry, WSM.Conn.DB.DataBaseName.DB_HR, "0"));
 
-            _Qry = @"SELECT FTLeaveCode,FTLeaveName 
+            _Qry = @" SELECT FTLeaveCode,FTLeaveName, FNLeaveRight, FNLeaveUsed, FNLeaveBal, FNSortSeq FROM 
+            (
 
-,ISNULL(FNLeaveRight,0) AS 'FNLeaveRight'
-					,ISNULL(FNLeaveUsed,0) AS 'FNLeaveUsed'
-					,ISNULL(FNLeaveBal,0) AS 'FNLeaveBal'
+
+            SELECT FTLeaveCode,FTLeaveName 
+
+            ,ISNULL(FNLeaveRight,0) AS 'FNLeaveRight'
+					            ,ISNULL(FNLeaveUsed,0) AS 'FNLeaveUsed'
+					            ,ISNULL(FNLeaveBal,0) AS 'FNLeaveBal'
 
 
 
@@ -219,7 +223,16 @@ namespace WSMHRAPI.Controllers
              GROUP BY FTLeaveType
 
             ) AS THRTTransLeave 
-              ON V_LeaveType.FTLeaveCode=THRTTransLeave.FTLeaveType) AS MM2 ";
+              ON V_LeaveType.FTLeaveCode=THRTTransLeave.FTLeaveType) AS MM2 
+
+ ) AS TL
+
+ LEFT  JOIN (SELECT   FNListIndex ,CASE WHEN ISNULL(FNSortSeq,0) >0 THEN ISNULL(FNSortSeq,0)  ELSE   FNListIndex END FNSortSeq
+FROM  HITECH_SYSTEM.dbo.HSysListData WITH(NOLOCK)
+where FTListName = 'fnleavetype'
+ ) V_LeaveSeq ON TL.FTLeaveCode=V_LeaveSeq.FNListIndex
+
+ORDER BY V_LeaveSeq.FNSortSeq ";
 
 
 
