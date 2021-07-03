@@ -20,6 +20,7 @@ namespace WSMHRAPI.Controllers
             System.Data.DataSet dts = new System.Data.DataSet("JsonDs");
             System.Data.DataTable dt = null;
 
+
             int tcmpid = (int)Microsoft.VisualBasic.Conversion.Val(cmpid);
             int tempid = (int)Microsoft.VisualBasic.Conversion.Val(empid);
             string syearmonth = startyear + '/' + startmonth;
