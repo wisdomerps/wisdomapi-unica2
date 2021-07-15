@@ -20,7 +20,7 @@ namespace WSMHRAPI.Controllers
         }
 
         // GET: api/PermissionLeave/5
-        public HttpResponseMessage Get(string id, string year)
+        public HttpResponseMessage Get(string EmployeeId, string year)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace WSMHRAPI.Controllers
 
                 System.Data.DataSet dts = new System.Data.DataSet("JsonDs");
 
-                dt = ShowLeaveInfo(id, year, "TH");
+                dt = ShowLeaveInfo(EmployeeId, year, "TH");
 
 
                 dts.Tables.Add(dt.Copy());

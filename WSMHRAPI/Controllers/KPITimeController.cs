@@ -13,8 +13,8 @@ namespace WSMHRAPI.Controllers
 
         // GET: api/GetUserJSon/5
         [HttpGet]
-        [Route("api/KPITime/{cmpid},{startyear},{startmonth},{endyear},{endmonth},{empid}")]
-        public HttpResponseMessage Get(string cmpid, string startyear, string startmonth, string endyear, string endmonth, string empid)
+        [Route("api/KPITime/{cmpid},{startyear},{startmonth},{endyear},{endmonth},{empid},{StateToBase}")]
+        public HttpResponseMessage Get(string cmpid, string startyear, string startmonth, string endyear, string endmonth, string empid, string StateToBase)
         {
 
             System.Data.DataSet dts = new System.Data.DataSet("JsonDs");
@@ -23,11 +23,12 @@ namespace WSMHRAPI.Controllers
 
             int tcmpid = (int)Microsoft.VisualBasic.Conversion.Val(cmpid);
             int tempid = (int)Microsoft.VisualBasic.Conversion.Val(empid);
+            int tStateToBase = (int)Microsoft.VisualBasic.Conversion.Val(StateToBase);
             string syearmonth = startyear + '/' + startmonth;
             string eyearmonth = endyear + '/' + endmonth;
 
             string stringcmd = "";
-            stringcmd = "EXEC [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.SP_GET_KPITIME " + tcmpid.ToString() + ",'" + syearmonth +  "','" + eyearmonth + "'," + tempid+  "";
+            stringcmd = "EXEC [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.SP_GET_KPITIME " + tcmpid.ToString() + ",'" + syearmonth +  "','" + eyearmonth + "'," + tempid+ "," +  tStateToBase;
             WSM.Conn.SQLConn Cnn = new WSM.Conn.SQLConn();
 
             dt = Cnn.GetDataTable(stringcmd, WSM.Conn.DB.DataBaseName.DB_HR, "TableKPI");        

@@ -57,7 +57,7 @@ namespace WSMHRAPI.HRFunction
 
 
                     // Save
-                    if (SaveData(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime, Remark, attFile, ExtentionFile))
+                    if (SaveData(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime, Remark, attFile, ExtentionFile , LeaveDayState))
                     {
 
                         msgCode = "";
@@ -582,7 +582,7 @@ namespace WSMHRAPI.HRFunction
             
         }
 
-        public static bool SaveData(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string remark, byte[] attFile, string ExtentionFile)
+        public static bool SaveData(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string remark, byte[] attFile, string ExtentionFile , int LeaveDayState)
         {
             try
             {
@@ -611,7 +611,7 @@ namespace WSMHRAPI.HRFunction
 
                 string FTStateCalSSo = "0";
                 string FTStateMedicalCertificate = "0";
-                string FNLeaveDay = "0";
+               // string FNLeaveDay = "0";
 
 
 
@@ -660,7 +660,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,N'" + remark + "'";
                     _Qry += Constants.vbCrLf + " ,'0'";
                     _Qry += Constants.vbCrLf + " ,'" + FTStateCalSSo + "'";
-                    _Qry += Constants.vbCrLf + " ,'" +  FNLeaveDay +  "'";
+                    _Qry += Constants.vbCrLf + " ,'" + LeaveDayState.ToString() +  "'";
                     _Qry += Constants.vbCrLf + " ,'" + FTStateMedicalCertificate + "','' ";
                     if (ExtentionFile != null)
                     {
@@ -706,7 +706,7 @@ namespace WSMHRAPI.HRFunction
 
 
                     _Qry += Constants.vbCrLf + " , FTStaCalSSO='" + FTStateCalSSo + "'";
-                    _Qry += Constants.vbCrLf + " , FTStaLeaveDay='" + FNLeaveDay + "'";
+                    _Qry += Constants.vbCrLf + " , FTStaLeaveDay='" + LeaveDayState.ToString() + "'";
                     _Qry += Constants.vbCrLf + " ,FTStateMedicalCertificate= '" + FTStateMedicalCertificate + "'";
                     _Qry += Constants.vbCrLf + " ,FTMedicalCertificateName='" + "" + "' ";
 
