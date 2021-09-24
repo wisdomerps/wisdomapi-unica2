@@ -37,9 +37,15 @@ namespace WSMHRAPI.HRFunction
 
                     Boolean _checkpay = false;
 
-                    if (Checkpay(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime))
-                    {
+                    string FTStateNotMergeHoliday = "0";
+                    string FTStateLeavepay = "0";
+                    string FTStateCalSSo = "0";
+                    string FTStateMedicalCertificate = "0";
+                    string FTStateDeductVacation = "0";
 
+                    if (Checkpay(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime,  LeaveMethod,  LeaveMinutes, ref FTStateNotMergeHoliday,  ref FTStateLeavepay, ref FTStateCalSSo, ref FTStateMedicalCertificate, ref FTStateDeductVacation))
+                    {
+                        
                     }
                     else
                     {
@@ -59,7 +65,7 @@ namespace WSMHRAPI.HRFunction
 
 
                     // Save
-                    if (SaveDataLeave(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime, Remark, attFile, ExtentionFile, LeaveDayState, LeaveMinutes))
+                    if (SaveDataLeave(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime, Remark, attFile, ExtentionFile, LeaveDayState, LeaveMethod, LeaveMinutes,  FTStateNotMergeHoliday,  FTStateLeavepay,  FTStateCalSSo,  FTStateMedicalCertificate,  FTStateDeductVacation))
                     {
 
                         msgCode = "";
@@ -142,7 +148,9 @@ namespace WSMHRAPI.HRFunction
             return false;
         }
 
-        private static bool Checkpay(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime)
+  
+
+        private static bool Checkpay(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string LeaveMethod, int LeaveMinutes, ref string FTStateNotMergeHoliday, ref string FTStateLeavepay, ref string FTStateCalSSo, ref string FTStateMedicalCertificate, ref string FTStateDeductVacation)
         {
             bool SetCheckPay = true;
             WSM.Conn.SQLConn Cnn = new WSM.Conn.SQLConn();
@@ -326,36 +334,45 @@ namespace WSMHRAPI.HRFunction
                 }
                 else
                 {
-                    //_GLeave = _GLeave + (FTNetDay.Value * ocetotaltime.Value)
+                    // _GLeave = _GLeave + (FTNetDay.Value * ocetotaltime.Value)
+                    _GLeave = _GLeave + (int.Parse(LeaveMethod) * LeaveMinutes);
                 }
             }
             catch (Exception ex)
             {
             }
 
-            Boolean FTStateLeavepay = true;
-            Boolean FTStateNotMergeHoliday = true;
-            Boolean FTStateCalSSo = true;
+            Boolean _FTStateLeavepay = true;
+            Boolean _FTStateNotMergeHoliday = true;
+            Boolean _FTStateCalSSo = true;
 
             //FTStateLeavepay.Enabled = True
             if (SetCheckPay)
             {
-                FTStateLeavepay = false;
+                _FTStateLeavepay = false;
 
                 if (ChkPayLeave(leavekey, _FNHSysempId))
                 {
                     //If(FNLeaveDay.SelectedIndex <> 3 And(_LeavePay >= _GLeavePay + (FTNetDay.Value * ocetotaltime.Value))) Then
                     //    FTStateLeavepay.Checked = (_LeavePay >= _GLeavePay + (FTNetDay.Value * ocetotaltime.Value))
                     //Else
+                    _FTStateLeavepay = (_LeavePay >= _GLeave);
                 }
                 else
                 {
-                    FTStateLeavepay = false;
+                    _FTStateLeavepay = false;
                 }
             }
 
-            FTStateNotMergeHoliday = (_FTStaHoliday == "1") || (leavekey == "98");
-            FTStateCalSSo = FTStateLeavepay;
+            _FTStateNotMergeHoliday = (_FTStaHoliday == "1") || (leavekey == "98");
+            _FTStateCalSSo = _FTStateLeavepay;
+
+             if (_FTStateNotMergeHoliday) { FTStateNotMergeHoliday="1"; } else { FTStateNotMergeHoliday = "0"; }
+            if (_FTStateLeavepay) { FTStateLeavepay = "1"; } else { FTStateLeavepay = "0"; }
+            if (_FTStateCalSSo) { FTStateCalSSo = "1"; } else { FTStateCalSSo = "0"; }
+
+            FTStateDeductVacation = _FTStateDeductVacation;
+            
 
 
             return true;
@@ -540,6 +557,7 @@ namespace WSMHRAPI.HRFunction
 
 
         }
+        
         public static IEnumerable<DateTime> EachDay(DateTime from, DateTime thru)
         {
             for (var day = from.Date; day.Date <= thru.Date; day = day.AddDays(1))
@@ -588,7 +606,9 @@ namespace WSMHRAPI.HRFunction
 
         }
 
-        public static bool SaveDataLeave(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string remark, byte[] attFile, string ExtentionFile, int LeaveDayState, int LeaveMinutes)
+      
+
+        public static bool SaveDataLeave(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string remark, byte[] attFile, string ExtentionFile, int LeaveDayState, string  LeaveMethod, int LeaveMinutes,  string FTStateNotMergeHoliday,  string FTStateLeavepay,  string FTStateCalSSo,  string FTStateMedicalCertificate,  string FTStateDeductVacation)
         {
             try
             {
@@ -596,9 +616,9 @@ namespace WSMHRAPI.HRFunction
                 string _Qry = "";
                 WSM.Conn.SQLConn Cnn = new WSM.Conn.SQLConn();
 
-                string FTStateNotMergeHoliday = "1";
-                string FTNetDay = "1";
-                string FTStateLeavepay = "";
+                
+                string FTNetDay = LeaveMethod;
+                
 
                 string FTSTime = StartTime;
                 string FTETime = EndTime;
@@ -617,8 +637,13 @@ namespace WSMHRAPI.HRFunction
                 FNNetTime = LeaveMinutes / 60 + ((LeaveMinutes % 60) * 0.01);
 
 
-                string FTStateCalSSo = "0";
-                string FTStateMedicalCertificate = "0";
+
+                //string FTStateNotMergeHoliday = "1";
+                //string FTStateLeavepay = "";
+                //string FTStateCalSSo = "0";
+                //string FTStateMedicalCertificate = "0";
+
+
                 // string FNLeaveDay = "0";
 
 
@@ -644,7 +669,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " , FNHSysEmpID, FTStartDate, FTEndDate,FTHoliday, FNLeaveTotalDay";
                     _Qry += Constants.vbCrLf + " , FTLeaveType,  FTLeavePay";
                     _Qry += Constants.vbCrLf + " , FTLeaveStartTime, FTLeaveEndTime, FNLeaveTotalTime,FNLeaveTotalTimeMin, FTLeaveNote";
-                    _Qry += Constants.vbCrLf + " ,FTApproveState,FTStaCalSSO,FTStaLeaveDay,FTStateMedicalCertificate,FTMedicalCertificateName ";
+                    _Qry += Constants.vbCrLf + " ,FTApproveState,FTStaCalSSO,FTStaLeaveDay,FTStateMedicalCertificate,FTMedicalCertificateName, FTStateDeductVacation ";
                     if (ExtentionFile != null)
                     {
                         _Qry += Constants.vbCrLf + " , FBFileRef, FBFile ";
@@ -658,7 +683,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,'" + ConvertEnDB(StartDate) + "'";
                     _Qry += Constants.vbCrLf + " ,'" + ConvertEnDB(Enddate) + "'";
                     _Qry += Constants.vbCrLf + " ,'" + FTStateNotMergeHoliday.ToString() + "'";
-                    _Qry += Constants.vbCrLf + " ," + FTNetDay + "";
+                    _Qry += Constants.vbCrLf + " ," + LeaveMethod + "";
                     _Qry += Constants.vbCrLf + " ,'" + leavekey + "'";
                     _Qry += Constants.vbCrLf + " ,'" + FTStateLeavepay + "'";
                     _Qry += Constants.vbCrLf + " ,'" + FTSTime + "'";
@@ -669,7 +694,9 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,'0'";
                     _Qry += Constants.vbCrLf + " ,'" + FTStateCalSSo + "'";
                     _Qry += Constants.vbCrLf + " ,'" + LeaveDayState.ToString() + "'";
-                    _Qry += Constants.vbCrLf + " ,'" + FTStateMedicalCertificate + "','' ";
+                    _Qry += Constants.vbCrLf + " ,'" + FTStateMedicalCertificate + "',''";
+                    _Qry += Constants.vbCrLf + " ,'" + FTStateDeductVacation + "'";
+                    
                     if (ExtentionFile != null)
                     {
                         _Qry += Constants.vbCrLf + " ,@attfile";
@@ -694,7 +721,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,FTUpdDate = " + FormatDateDB + "";
                     _Qry += Constants.vbCrLf + " ,FTUpdTime = " + FormatTimeDB + "";
                     _Qry += Constants.vbCrLf + " ,FTHoliday = '" + FTStateNotMergeHoliday + "'";
-                    _Qry += Constants.vbCrLf + " ,FNLeaveTotalDay = " + FTNetDay + "";
+                    _Qry += Constants.vbCrLf + " ,FNLeaveTotalDay = " + LeaveMethod + "";
                     _Qry += Constants.vbCrLf + " ,FTLeaveType = '" + leavekey + "'";
                     _Qry += Constants.vbCrLf + " ,FTLeavePay = '" + FTStateLeavepay + "'";
                     _Qry += Constants.vbCrLf + " ,FTLeaveStartTime = '" + FTSTime + "'";
@@ -717,6 +744,8 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " , FTStaLeaveDay='" + LeaveDayState.ToString() + "'";
                     _Qry += Constants.vbCrLf + " ,FTStateMedicalCertificate= '" + FTStateMedicalCertificate + "'";
                     _Qry += Constants.vbCrLf + " ,FTMedicalCertificateName='" + "" + "' ";
+                    _Qry += Constants.vbCrLf + " ,FTStateDeductVacation= '" + FTStateDeductVacation + "'";
+                    
 
                     if (ExtentionFile != null)
                     {
@@ -784,8 +813,10 @@ namespace WSMHRAPI.HRFunction
 
         }
 
+       
 
-        public static bool SendApprove(int _FNHSysempId, int leavekey, string StartDate, string Enddate, int _FNHSysempId_Appr, string FTStateType, int ActionType, ref int msgCode, ref string msgDesc)
+
+            public static bool SendApprove(int _FNHSysempId, int leavekey, string StartDate, string Enddate, int _FNHSysempId_Appr, string FTStateType, int ActionType, ref int msgCode, ref string msgDesc)
         {
             try
             {
