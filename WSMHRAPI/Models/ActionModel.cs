@@ -10,6 +10,7 @@ namespace WSMHRAPI.Models
         public bool Status { get; set; }
         public int StatusCode { get; set; }
         public string Messege { get; set; }
+        public int NextApprovalID { get; set; }
 
     }
 }

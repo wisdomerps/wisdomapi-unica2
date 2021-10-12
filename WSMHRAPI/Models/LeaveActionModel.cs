@@ -15,5 +15,7 @@ namespace WSMHRAPI.Models
         public int ApproverId { get; set; }
         public string FTStateType { get; set; }
         public int ActionType { get; set; }
+        
+
     }
 }

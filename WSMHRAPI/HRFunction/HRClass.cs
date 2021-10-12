@@ -816,7 +816,7 @@ namespace WSMHRAPI.HRFunction
        
 
 
-            public static bool SendApprove(int _FNHSysempId, int leavekey, string StartDate, string Enddate, int _FNHSysempId_Appr, string FTStateType, int ActionType, ref int msgCode, ref string msgDesc)
+            public static bool SendApprove(int _FNHSysempId, int leavekey, string StartDate, string Enddate, int _FNHSysempId_Appr, string FTStateType, int ActionType, ref int msgCode, ref string msgDesc , ref int  NextApprovalID)
         {
             try
             {
@@ -824,7 +824,7 @@ namespace WSMHRAPI.HRFunction
                 WSM.Conn.SQLConn Cnn = new WSM.Conn.SQLConn();
                 string usernameAppr = "";
 
-                if (ActionType.ToString() == "2")
+                if (ActionType.ToString() == "2") //Remove Leave
                 {
                     //check FTApproveState 
 
@@ -869,12 +869,42 @@ namespace WSMHRAPI.HRFunction
                 }
                 else
                 {
+                    //Action Approve Cancel
 
                     usernameAppr = GETUserName(_FNHSysempId_Appr.ToString());
 
+                    DataTable dt = new DataTable() ;
+                    String FNHSysEmpIDu1 = "0";
+                    String FNHSysEmpIDu2 = "0";
+
+
+                    if (FTStateType.ToString() == "1")
+                    {
+                        //CHECK DIRECTor Approval 
+
+                        _Qry = " SELECT SELECT ISNULL(u1.FNHSysEmpID,0) AS [FNHSysEmpIDu1], ISNULL(u2.FNHSysEmpID,0) AS [FNHSysEmpIDu2]  ";
+                        _Qry += Constants.vbCrLf + " FROM [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.THRMEmployee  ";
+                       _Qry += Constants.vbCrLf + "  LEFT OUTER JOIN [HITECH_SECURITY].[dbo].[TSEUserLogin] as u1 on u1.FTUserName=M.FTUserNameChk  ";
+                        _Qry += Constants.vbCrLf + " LEFT OUTER JOIN [HITECH_SECURITY].[dbo].[TSEUserLogin] as u2 on u2.FTUserName=M.FTUserNameMngFac ";
+                        _Qry += Constants.vbCrLf + " WHERE FNHSysEmpId='" + _FNHSysempId + "'";
+
+                        dt = Cnn.GetDataTable(_Qry, WSM.Conn.DB.DataBaseName.DB_HR, "");
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            FNHSysEmpIDu1 = dr["FNHSysEmpIDu1"].ToString();
+                            FNHSysEmpIDu2 = dr["FNHSysEmpIDu2"].ToString();
+                        }
+
+
+                    }
+
+
+
+
                     _Qry = "Update [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.THRTLeaveAdvanceDaily";
 
-                    if (ActionType.ToString() == "0")
+                    if (FTStateType.ToString() == "0")
                     {
 
                         _Qry += Constants.vbCrLf + " Set FTDirApproveState='" + ActionType + "'";
@@ -884,10 +914,29 @@ namespace WSMHRAPI.HRFunction
                     }
                     else
                     {
-                        _Qry += Constants.vbCrLf + " Set FTMngApproveState='" + ActionType + "'";
-                        _Qry += Constants.vbCrLf + ", FTMngApproveBy='" + usernameAppr + "'";
-                        _Qry += Constants.vbCrLf + ", FDMngApproveDate=" + FormatDateDB + "";
-                        _Qry += Constants.vbCrLf + ", FTMngApproveTime=" + FormatTimeDB + "";
+                        if (FNHSysEmpIDu2 == "0")
+                        {
+                            //กรณี มีแต่หัวหน้างาน
+
+                            _Qry += Constants.vbCrLf + " Set FTMngApproveState='" + ActionType + "'";
+                            _Qry += Constants.vbCrLf + ", FTMngApproveBy='" + usernameAppr + "'";
+                            _Qry += Constants.vbCrLf + ", FDMngApproveDate=" + FormatDateDB + "";
+                            _Qry += Constants.vbCrLf + ", FTMngApproveTime=" + FormatTimeDB + "";
+                            _Qry += Constants.vbCrLf + " , FTDirApproveState='" + ActionType + "'";
+                            _Qry += Constants.vbCrLf + ", FTDirApproveBy='" + usernameAppr + "'";
+                            _Qry += Constants.vbCrLf + ", FDDirApproveDate=" + FormatDateDB + "";
+                            _Qry += Constants.vbCrLf + ", FTDirApproveTime=" + FormatTimeDB + "";
+                        }
+                        else
+                        {
+
+
+                            _Qry += Constants.vbCrLf + " Set FTMngApproveState='" + ActionType + "'";
+                            _Qry += Constants.vbCrLf + ", FTMngApproveBy='" + usernameAppr + "'";
+                            _Qry += Constants.vbCrLf + ", FDMngApproveDate=" + FormatDateDB + "";
+                            _Qry += Constants.vbCrLf + ", FTMngApproveTime=" + FormatTimeDB + "";
+                        }
+                       
                     }
 
 
@@ -901,11 +950,21 @@ namespace WSMHRAPI.HRFunction
 
                         msgCode = 404;
                         msgDesc = "Not found Leave. Can not approve leave.";
+                        NextApprovalID = 0;
                         return false;
                     }
 
                     msgCode = 200;
                     msgDesc = "Already Approve.";
+                    if (FTStateType.ToString() == "1")
+                    {
+                        NextApprovalID = int.Parse(FNHSysEmpIDu2);
+                    }
+                    else
+                    {
+                        NextApprovalID = 0;
+                    }
+                   
                     return true;
                 }
 
@@ -914,6 +973,7 @@ namespace WSMHRAPI.HRFunction
             {
                 msgCode = 404;
                 msgDesc = "Found Error System.";
+                NextApprovalID = 0;
                 return false;
             }
         }
