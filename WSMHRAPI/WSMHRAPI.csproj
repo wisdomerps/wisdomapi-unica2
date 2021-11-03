@@ -225,6 +225,13 @@
     <Compile Include="HRFunction\Document.cs" />
     <Compile Include="HRFunction\HRClass.cs" />
     <Compile Include="Models\ActionUpdateEmpCodeModel.cs" />
+    <Compile Include="Models\MasterPositionModel.cs" />
+    <Compile Include="Models\MasterUnitSectModel.cs" />
+    <Compile Include="Models\MasterSectModel.cs" />
+    <Compile Include="Models\MasterDepartmentModel.cs" />
+    <Compile Include="Models\MasterDivisionModel.cs" />
+    <Compile Include="Models\MasterCompanyModel.cs" />
+    <Compile Include="Models\MasterCLeavelModel.cs" />
     <Compile Include="Models\UpdateEmpCodeModel.cs" />
     <Compile Include="Models\ActionCreateEmpModel.cs" />
     <Compile Include="Models\CreateEmpModel.cs" />

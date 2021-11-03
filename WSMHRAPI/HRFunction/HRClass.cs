@@ -15,7 +15,7 @@ namespace WSMHRAPI.HRFunction
         public const string FormatDateDB = "Convert(varchar(10),Getdate(),111)";
         public const string FormatTimeDB = "Convert(varchar(8),Getdate(),114)";
 
-        public static bool CreateLeave(string _FNHSysempId, string _FNHSysWorkShift, string LeaveTypeId, int LeaveDayState, string LeaveMethod, int LeaveMinutes, string StartDate, string Enddate, string StartTime, string EndTime, string Remark, byte[] attFile, string ExtentionFile, ref string msgCode, ref string msgDesc)
+        public static bool CreateLeave(string _FNHSysempId, string _FNHSysWorkShift, string LeaveTypeId, int LeaveDayState, string LeaveMethod, int LeaveMinutes, string StartDate, string Enddate, string StartTime, string EndTime, string Remark, byte[] attFile, string ExtentionFile, ref string msgCode, ref string msgDesc, ref int NextApprovalID)
         {
             try
             {
@@ -65,11 +65,12 @@ namespace WSMHRAPI.HRFunction
 
 
                     // Save
-                    if (SaveDataLeave(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime, Remark, attFile, ExtentionFile, LeaveDayState, LeaveMethod, LeaveMinutes,  FTStateNotMergeHoliday,  FTStateLeavepay,  FTStateCalSSo,  FTStateMedicalCertificate,  FTStateDeductVacation))
+                    if (SaveDataLeave(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime, Remark, attFile, ExtentionFile, LeaveDayState, LeaveMethod, LeaveMinutes,  FTStateNotMergeHoliday,  FTStateLeavepay,  FTStateCalSSo,  FTStateMedicalCertificate,  FTStateDeductVacation, ref  NextApprovalID))
                     {
 
                         msgCode = "";
                         msgDesc = "บันทึกการลาเรียบร้อยแล้ว!!!";
+                      
                         return true;
                     }
                     else
@@ -77,6 +78,7 @@ namespace WSMHRAPI.HRFunction
 
                         msgCode = "";
                         msgDesc = "ไม่สามารถบันทึกการลาได้ !!!";
+                        NextApprovalID = 0;
                         return false;
                     }
 
@@ -86,6 +88,7 @@ namespace WSMHRAPI.HRFunction
 
                     //msgCode = "";
                     //msgDesc = "พบข้อมูลการลาเกินกำหนด !!!";
+                    NextApprovalID = 0;
                     return false;
                 }
 
@@ -608,7 +611,7 @@ namespace WSMHRAPI.HRFunction
 
       
 
-        public static bool SaveDataLeave(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string remark, byte[] attFile, string ExtentionFile, int LeaveDayState, string  LeaveMethod, int LeaveMinutes,  string FTStateNotMergeHoliday,  string FTStateLeavepay,  string FTStateCalSSo,  string FTStateMedicalCertificate,  string FTStateDeductVacation)
+        public static bool SaveDataLeave(string leavekey, string _FNHSysempId, string StartDate, string Enddate, string StartTime, string EndTime, string remark, byte[] attFile, string ExtentionFile, int LeaveDayState, string  LeaveMethod, int LeaveMinutes,  string FTStateNotMergeHoliday,  string FTStateLeavepay,  string FTStateCalSSo,  string FTStateMedicalCertificate,  string FTStateDeductVacation, ref int NextApprovalID)
         {
             try
             {
@@ -675,7 +678,7 @@ namespace WSMHRAPI.HRFunction
                         _Qry += Constants.vbCrLf + " , FBFileRef, FBFile ";
                     }
 
-                    _Qry += Constants.vbCrLf + " , FTSendApproveState,FDSendApproveDate,FTSendApproveTime,FTSendApproveBy )";
+                    _Qry += Constants.vbCrLf + " , FTSendApproveState,FDSendApproveDate,FTSendApproveTime,FTSendApproveBy, FTRequestFromSystem )";
 
                     _Qry += Constants.vbCrLf + " VALUES ('" + username + "'," + FormatDateDB + "";
                     _Qry += Constants.vbCrLf + " ," + FormatTimeDB + "";
@@ -707,7 +710,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ," + FormatTimeDB + "";
                     _Qry += Constants.vbCrLf + " ,'" + username + "'";
 
-
+                    _Qry += Constants.vbCrLf + " ,'PMDS'";
 
                     _Qry += Constants.vbCrLf + ")";
 
@@ -756,14 +759,14 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + ", FDSendApproveDate = " + FormatDateDB + "";
                     _Qry += Constants.vbCrLf + ", FTSendApproveTime=" + FormatTimeDB + "";
                     _Qry += Constants.vbCrLf + ", FTSendApproveBy='" + username + "'";
-
+                    _Qry += Constants.vbCrLf + ", FTRequestFromSystem='PMDS'";
 
                     _Qry += Constants.vbCrLf + " WHERE FNHSysEmpID = " + _FNHSysempId + "";
                     _Qry += Constants.vbCrLf + " AND FTStartDate = '" + ConvertEnDB(StartDate) + "'";
                     _Qry += Constants.vbCrLf + " AND FTEndDate = '" + ConvertEnDB(Enddate) + "'";
                     _Qry += Constants.vbCrLf + " AND FTLeaveType = '" + leavekey + "'";
 
-
+                    
 
                 }
 
@@ -792,6 +795,28 @@ namespace WSMHRAPI.HRFunction
                     _Cmd.Dispose();
                     _Cnn.Dispose();
 
+                    DataTable dt = new DataTable();
+                    String FNHSysEmpIDu1 = "0";
+                    String FNHSysEmpIDu2 = "0";
+
+
+                    _Qry = "  SELECT ISNULL(u1.FNHSysEmpID,0) AS [FNHSysEmpIDu1], ISNULL(u2.FNHSysEmpID,0) AS [FNHSysEmpIDu2]  ";
+                    _Qry += Constants.vbCrLf + " FROM [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.THRMEmployee M ";
+                    _Qry += Constants.vbCrLf + "  LEFT OUTER JOIN [HITECH_SECURITY].[dbo].[TSEUserLogin] as u1 on u1.FTUserName=M.FTUserNameChk  ";
+                    _Qry += Constants.vbCrLf + " LEFT OUTER JOIN [HITECH_SECURITY].[dbo].[TSEUserLogin] as u2 on u2.FTUserName=M.FTUserNameMngFac ";
+                    _Qry += Constants.vbCrLf + " WHERE M.FNHSysEmpId='" + _FNHSysempId + "'";
+
+                    dt = Cnn.GetDataTable(_Qry, WSM.Conn.DB.DataBaseName.DB_HR, "");
+
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        FNHSysEmpIDu1 = dr["FNHSysEmpIDu1"].ToString();
+                        FNHSysEmpIDu2 = dr["FNHSysEmpIDu2"].ToString();
+                    }
+
+                    NextApprovalID = int.Parse(FNHSysEmpIDu1);
+
+
                     return true;
                 }
                 catch (Exception ex)
@@ -802,6 +827,10 @@ namespace WSMHRAPI.HRFunction
                     return false;
                 }
                 // Cnn.ExecuteOnly(_Qry, WSM.Conn.DB.DataBaseName.DB_HR);
+
+                //get  approval
+
+               
 
                 return true;
             }
@@ -882,11 +911,11 @@ namespace WSMHRAPI.HRFunction
                     {
                         //CHECK DIRECTor Approval 
 
-                        _Qry = " SELECT SELECT ISNULL(u1.FNHSysEmpID,0) AS [FNHSysEmpIDu1], ISNULL(u2.FNHSysEmpID,0) AS [FNHSysEmpIDu2]  ";
-                        _Qry += Constants.vbCrLf + " FROM [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.THRMEmployee  ";
+                        _Qry = "  SELECT ISNULL(u1.FNHSysEmpID,0) AS [FNHSysEmpIDu1], ISNULL(u2.FNHSysEmpID,0) AS [FNHSysEmpIDu2]  ";
+                        _Qry += Constants.vbCrLf + " FROM [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.THRMEmployee M ";
                        _Qry += Constants.vbCrLf + "  LEFT OUTER JOIN [HITECH_SECURITY].[dbo].[TSEUserLogin] as u1 on u1.FTUserName=M.FTUserNameChk  ";
                         _Qry += Constants.vbCrLf + " LEFT OUTER JOIN [HITECH_SECURITY].[dbo].[TSEUserLogin] as u2 on u2.FTUserName=M.FTUserNameMngFac ";
-                        _Qry += Constants.vbCrLf + " WHERE FNHSysEmpId='" + _FNHSysempId + "'";
+                        _Qry += Constants.vbCrLf + " WHERE M.FNHSysEmpId='" + _FNHSysempId + "'";
 
                         dt = Cnn.GetDataTable(_Qry, WSM.Conn.DB.DataBaseName.DB_HR, "");
 
@@ -1066,10 +1095,14 @@ namespace WSMHRAPI.HRFunction
 
                 if (Cnn.GetField(_Qry, WSM.Conn.DB.DataBaseName.DB_HR, "") == "")
                 {
+                    //
+                    string CmpCode = "";
+                    CmpCode = Cnn.GetField("SELECT  FTCmpCode FROM  " + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + ".dbo.TCNMCmp WHERE FNHSysCmpId=" + (createEmpModel.FNHSysCmpId), WSM.Conn.DB.DataBaseName.DB_MASTER, "0");
+
 
                     //get fnhsysempid 
-                    int _FNHSysempId = 0;
-                    _FNHSysempId = TL.RunID.GetRunNoID("THRMEmployee", "FNHSysEmpID", WSM.Conn.DB.DataBaseName.DB_HR, createEmpModel.CmpCode);
+                  int _FNHSysempId = 0;
+                    _FNHSysempId = TL.RunID.GetRunNoID("THRMEmployee", "FNHSysEmpID", WSM.Conn.DB.DataBaseName.DB_HR, CmpCode);
 
                     string _CmpH = "";
                     _CmpH = Cnn.GetField("SELECT TOP 1 FTDocRun FROM " + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + ".dbo.TCNMCmp WHERE FNHSysCmpId=" + (createEmpModel.FNHSysCmpId) + " ", WSM.Conn.DB.DataBaseName.DB_SYSTEM, "");

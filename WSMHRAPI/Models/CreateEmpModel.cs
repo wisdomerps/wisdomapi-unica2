@@ -7,7 +7,6 @@ namespace WSMHRAPI.Models
 {
     public class CreateEmpModel  //class main
     {
-        public string CmpCode { get; set; }
         public string username { get; set; }
         public int EmployeeId { get; set; }
         public int FNHSysCmpId { get; set; }

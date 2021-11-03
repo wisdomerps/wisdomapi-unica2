@@ -63,14 +63,16 @@ namespace WSMHRAPI.Controllers
                     ActionModel a = new ActionModel();
                     string msgCode = "";
                     string msgDesc = "";
+                    int NextApprovalID = 0;
 
                     if (HRClass.CreateLeave(createleave.EmployeeId.ToString(), createleave.WorkShiftId.ToString(), createleave.LeaveTypeId.ToString()
-                        , createleave.LeaveDayState, createleave.LeaveMethod.ToString(), createleave.LeaveMinutes, createleave.StartDate, createleave.EndDate, createleave.StartTime, createleave.EndTime, createleave.Remark, attfile, createleave.ExtentionFile, ref msgCode, ref msgDesc))
+                        , createleave.LeaveDayState, createleave.LeaveMethod.ToString(), createleave.LeaveMinutes, createleave.StartDate, createleave.EndDate, createleave.StartTime, createleave.EndTime, createleave.Remark, attfile, createleave.ExtentionFile, ref msgCode, ref msgDesc , ref NextApprovalID))
                     {
                         //Request.CreateResponse(HttpStatusCode.OK);
                         a.Status = true;
                         a.StatusCode = 200;
                         a.Messege = msgDesc;
+                        a.NextApprovalID = NextApprovalID;
                         return Ok(a);
                     }
                     else
@@ -79,7 +81,7 @@ namespace WSMHRAPI.Controllers
                         a.Status = false;
                         a.StatusCode = int.Parse(msgCode);
                         a.Messege = msgDesc;
-
+                        a.NextApprovalID = 0;
 
                       //  Request.CreateResponse(HttpStatusCode.NotFound, a);
                         return Ok(a);
