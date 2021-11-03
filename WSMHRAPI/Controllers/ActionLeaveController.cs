@@ -31,18 +31,20 @@ namespace WSMHRAPI.Controllers
                 //d
                 ActionModel a = new ActionModel();
                 int msgCode = 0;
+                int NextApprovalID = 0;
                 string msgDesc = "";
 
                 if (ApproveLeave.EmployeeId > 0)
                 {
 
                     if (HRClass.SendApprove(ApproveLeave.EmployeeId, ApproveLeave.LeaveTypeId
-                                            , ApproveLeave.StartDate, ApproveLeave.EndDate, ApproveLeave.ApproverId, ApproveLeave.FTStateType, ApproveLeave.ActionType, ref msgCode, ref msgDesc))
+                                            , ApproveLeave.StartDate, ApproveLeave.EndDate, ApproveLeave.ApproverId, ApproveLeave.FTStateType, ApproveLeave.ActionType, ref msgCode, ref msgDesc, ref NextApprovalID))
                     {
                         //Request.CreateResponse(HttpStatusCode.OK);
                         a.Status = true;
                         a.StatusCode = msgCode;
                         a.Messege = msgDesc;
+                        a.NextApprovalID = NextApprovalID;
                         return Ok(a);
                     }
                     else

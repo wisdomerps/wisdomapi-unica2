@@ -5,12 +5,14 @@ using System.Web;
 
 namespace WSMHRAPI.Models
 {
-    public class ActionModel
+    public class ActionUpdateEmpCodeModel
     {
         public bool Status { get; set; }
+        public int FNHSysEmpID { get; set; }
+        public string FTEmpCode { get; set; }
+
         public int StatusCode { get; set; }
         public string Messege { get; set; }
-        public int NextApprovalID { get; set; }
 
     }
 }
