@@ -24,8 +24,8 @@ namespace WSMERPAPI
         public static int GetRunNoID(String TableName, String FieldName, WSM.Conn.DB.DataBaseName DbName, int cmpID = 0) 
         {
 
-            int RunLenght = 10;
-            String RunFmt = " Right(replace(Convert(varchar(10),Getdate(),111),'/',''),6)   ";
+            int RunLenght = 9;
+            String RunFmt = " Right(replace(Convert(varchar(10),Getdate(),111),'/',''),5)   ";
 
 
             String _Qry  = "";
@@ -63,7 +63,7 @@ namespace WSMERPAPI
                 if (CmpFmt != "" && CmpFmt.Length == 4)
                 {
                     CmpFmt = CmpFmt.Right(3);
-                    _RunFmt = " Left(Right(replace(Convert(varchar(10),Getdate(),111),'/',''),6),2) +  Right('0000'+ Convert(varchar(4),(Convert(int," + CmpFmt + ") +  Convert(int,Right(replace(Convert(varchar(10),Getdate(),111),'/',''),4)))),4)   ";
+                    _RunFmt = " Left(Right(replace(Convert(varchar(10),Getdate(),111),'/',''),6),2) +  Right('0000'+ Convert(varchar(4),(Convert(int," + CmpFmt + ") +  Convert(int,Right(replace(Convert(varchar(10),Getdate(),111),'/',''),4)))),3)   ";
 
 
                 }
@@ -73,13 +73,13 @@ namespace WSMERPAPI
                 _RunFmt = RunFmt;
             }
 
-            _RunFmt = " Left(Right(replace(Convert(varchar(10),Getdate(),111),'/',''),6),2) +  Right('0000'+ Convert(varchar(4),(Convert(int," + CmpFmt + ") +  Convert(int,Right(replace(Convert(varchar(10),Getdate(),111),'/',''),4)))),4)   ";
+            _RunFmt = " Left(Right(replace(Convert(varchar(10),Getdate(),111),'/',''),6),2) +  Right('0000'+ Convert(varchar(4),(Convert(int," + CmpFmt + ") +  Convert(int,Right(replace(Convert(varchar(10),Getdate(),111),'/',''),4)))),3)   ";
 
             _Qry = @" SELECT  ISNULL(( ";
             _Qry += "SELECT TOP 1  Convert(varchar(" + RunLenght + ")," + FieldName + " +1)  AS FNRunNo ";
             _Qry += " FROM  " + TableName + "  WITH(NOLOCK) ";
             _Qry += " WHERE  LEN(" + FieldName +  ") =" + RunLenght + "";
-            _Qry += " AND LEFT(" + FieldName + ",6)= " + _RunFmt;
+            _Qry += " AND LEFT(" + FieldName + ",5)= " + _RunFmt;
             _Qry += " ORDER BY " + FieldName + "  DESC) ," +  _RunFmt + " + '0001') AS FNRunNo";
 
 

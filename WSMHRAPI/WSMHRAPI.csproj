@@ -198,6 +198,28 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\ActionLeaveController.cs" />
+    <Compile Include="Controllers\MasterCLeavelDeleteController.cs" />
+    <Compile Include="Controllers\MasterCompanyCreateController.cs" />
+    <Compile Include="Controllers\MasterCompanyDeleteController.cs" />
+    <Compile Include="Controllers\MasterCompanyUpdateController.cs" />
+    <Compile Include="Controllers\MasterDepartmentCreateController.cs" />
+    <Compile Include="Controllers\MasterDepartmentDeleteController.cs" />
+    <Compile Include="Controllers\MasterDepartmentUpdateController.cs" />
+    <Compile Include="Controllers\MasterDivisionCreateController.cs" />
+    <Compile Include="Controllers\MasterDivisionDeleteController.cs" />
+    <Compile Include="Controllers\MasterDivisionUpdateController.cs" />
+    <Compile Include="Controllers\MasterPositionCreateController.cs" />
+    <Compile Include="Controllers\MasterPositionDeleteController.cs" />
+    <Compile Include="Controllers\MasterPositionUpdateController.cs" />
+    <Compile Include="Controllers\MasterSectCreateController.cs" />
+    <Compile Include="Controllers\MasterSectDeleteController.cs" />
+    <Compile Include="Controllers\MasterSectUpdateController.cs" />
+    <Compile Include="Controllers\MasterUnitsectDeleteController.cs" />
+    <Compile Include="Controllers\MasterUnitsectUpdateController.cs" />
+    <Compile Include="Controllers\MasterCLeavelUpdateController.cs" />
+    <Compile Include="Controllers\MasterCLeavelCreateController.cs" />
+    <Compile Include="Controllers\MasterUnitsectCreateController.cs" />
+    <Compile Include="Controllers\HRLeaveDecisionController.cs" />
     <Compile Include="Controllers\GetListData.cs" />
     <Compile Include="Controllers\UpdateEmployeeCodeController.cs" />
     <Compile Include="Controllers\CreateEmployeeController.cs" />
@@ -212,7 +234,6 @@
     <Compile Include="Controllers\GetPermisLeaveByEmployeeController.cs" />
     <Compile Include="Controllers\KPITimeController.cs" />
     <Compile Include="Controllers\GetLeaveHistoryController.cs" />
-    <Compile Include="Controllers\MasterUnisectController.cs" />
     <Compile Include="Controllers\RegisterController.cs" />
     <Compile Include="Controllers\UploadfileController.cs" />
     <Compile Include="Controllers\UserinfoController.cs" />
@@ -224,6 +245,8 @@
     </Compile>
     <Compile Include="HRFunction\Document.cs" />
     <Compile Include="HRFunction\HRClass.cs" />
+    <Compile Include="MasterFunction\MasterClass.cs" />
+    <Compile Include="Models\ActionMasterModel.cs" />
     <Compile Include="Models\ActionUpdateEmpCodeModel.cs" />
     <Compile Include="Models\MasterPositionModel.cs" />
     <Compile Include="Models\MasterUnitSectModel.cs" />

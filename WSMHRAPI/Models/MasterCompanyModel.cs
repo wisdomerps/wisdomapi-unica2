@@ -16,5 +16,6 @@ namespace WSMHRAPI.Models
         public string FTCmpNameEN { get; set; }
         public string FTRemark { get; set; }
 
+        public string FTStateActive { get; set; }
     }
 }

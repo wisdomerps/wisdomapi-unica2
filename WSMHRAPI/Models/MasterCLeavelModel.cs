@@ -15,5 +15,8 @@ namespace WSMHRAPI.Models
         public string FTCLevelNameTH { get; set; }
         public string FTCLevelNameEN { get; set; }
         public string FTRemark { get; set; }
+
+        public string FTStateActive { get; set; }
+
     }
 }

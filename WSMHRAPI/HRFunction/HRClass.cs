@@ -43,6 +43,9 @@ namespace WSMHRAPI.HRFunction
                     string FTStateMedicalCertificate = "0";
                     string FTStateDeductVacation = "0";
 
+                    if (LeaveMinutes > 480)
+                    { LeaveMinutes = 480; }
+
                     if (Checkpay(LeaveTypeId, _FNHSysempId, StartDate, Enddate, StartTime, EndTime,  LeaveMethod,  LeaveMinutes, ref FTStateNotMergeHoliday,  ref FTStateLeavepay, ref FTStateCalSSo, ref FTStateMedicalCertificate, ref FTStateDeductVacation))
                     {
                         
@@ -172,6 +175,9 @@ namespace WSMHRAPI.HRFunction
 
             int TotalLeave = 0;
 
+
+         
+
             string _CalType = "";
             _Qry = " SELECT  ET.FNCalType ";
             _Qry += Constants.vbCrLf + " FROM            THRMEmployee AS M INNER JOIN";
@@ -253,7 +259,7 @@ namespace WSMHRAPI.HRFunction
             }
 
             _Leave = _Leave * 480;
-            _LeavePay = _LeavePay * 480;
+            _LeavePay = _LeavePay * 480; // สิทธฺิ์ที่ลาได้
             _GLeave = 0;
             _GLeavePay = 0;
 
@@ -281,7 +287,7 @@ namespace WSMHRAPI.HRFunction
                     if (dr["FNTotalPayMinute"].ToString() != "") { _GLeavePay = double.Parse(dr["FNTotalPayMinute"].ToString()); }
                 }
             }
-
+            //_GLeave   ลาไปแล้ว
 
             if (leavekey == "98")
             {
@@ -635,6 +641,11 @@ namespace WSMHRAPI.HRFunction
                 int ocetotaltime = 0; // mm
 
                 ocetotaltime = LeaveMinutes;
+                if (ocetotaltime >= 480)
+                {
+                    ocetotaltime = 480;  //สูงสุดต่อวัน
+                }
+
 
 
                 FNNetTime = LeaveMinutes / 60 + ((LeaveMinutes % 60) * 0.01);
@@ -1097,7 +1108,7 @@ namespace WSMHRAPI.HRFunction
                 {
                     //
                     string CmpCode = "";
-                    CmpCode = Cnn.GetField("SELECT  FTCmpCode FROM  " + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + ".dbo.TCNMCmp WHERE FNHSysCmpId=" + (createEmpModel.FNHSysCmpId), WSM.Conn.DB.DataBaseName.DB_MASTER, "0");
+                    CmpCode = Cnn.GetField("SELECT  FTCmpCode FROM  " + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + ".dbo.TCNMCmp WHERE FNHSysCmpId=" + (createEmpModel.FNHSysCmpId), WSM.Conn.DB.DataBaseName.DB_MASTER, "");
 
 
                     //get fnhsysempid 
@@ -1137,8 +1148,13 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " , FNHSysShiftID ";
                     _Qry += Constants.vbCrLf + " , FNHSysPositId,FNHSysDivisonId, FNHSysDeptId , FNHSysSectId, FNHSysUnitSectId ";
                     _Qry += Constants.vbCrLf + "  , FNHSysPositIdOrg, FNHSysCLevelIdOrg, FNHSysCountryIdOrg, FNHSysCmpIdOrg";
-                    _Qry += Constants.vbCrLf + " , FNHSysDivisonIdOrg, FNHSysDeptIdOrg, FNHSysSectIdOrg, FNHSysUnitSectIdOrg )";
+                    _Qry += Constants.vbCrLf + " , FNHSysDivisonIdOrg, FNHSysDeptIdOrg, FNHSysSectIdOrg, FNHSysUnitSectIdOrg ) ";
 
+                    //_Qry += Constants.vbCrLf + " , FNUseBarcode, FNScanCtrl, FNHSysEmpIDLeader, FNLateCutSta , FNPaidOTSta , FNHSysHospitalId ";
+
+                    //_Qry += Constants.vbCrLf + "  )";
+                   
+           
 
 
                     _Qry += Constants.vbCrLf + " VALUES ('" + createEmpModel.username + "'," + FormatDateDB + "";
@@ -1160,7 +1176,7 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ,'" + createEmpModel.FNEmpSex + "'";
                     _Qry += Constants.vbCrLf + " ,'" + createEmpModel.FDDateStart + "'";
 
-                    _Qry += Constants.vbCrLf + " ,DATEADD(DAY," + _FNProDay + ",'" + createEmpModel.FDDateStart + "') , 0 , 0 ";
+                    _Qry += Constants.vbCrLf + " ,CONVERT(Nvarchar(10),DATEADD(DAY," + _FNProDay + ",'" + createEmpModel.FDDateStart + "'),111) , 0 , 0 ";
 
                     _Qry += Constants.vbCrLf + " ," + createEmpModel.FCWeight + "";
                     _Qry += Constants.vbCrLf + " ," + createEmpModel.FCHeight + "";
@@ -1228,6 +1244,8 @@ namespace WSMHRAPI.HRFunction
                     _Qry += Constants.vbCrLf + " ," + createEmpModel.FNHSysSectIdOrg + "";
                     _Qry += Constants.vbCrLf + " ," + createEmpModel.FNHSysUnitSectIdOrg + "";
 
+                    //_Qry += Constants.vbCrLf + " , 0, 2, 0, 1 , 0, 0 ";
+
                     _Qry += Constants.vbCrLf + ")";
 
 
@@ -1268,7 +1286,7 @@ namespace WSMHRAPI.HRFunction
                     msgFNHSysEmpID = _FNHSysempId;
                     msgFTEmpCode = _EmpCode;
                     msgCode = "200";
-                    msgDesc = "";
+                    msgDesc = "Already Created";
                     return true;
 
                 }
@@ -1291,7 +1309,7 @@ namespace WSMHRAPI.HRFunction
                 if (Cnn.GetField(_Qry, WSM.Conn.DB.DataBaseName.DB_HR, "") == "")
                 {
                     string _CmpH = "";
-                    _CmpH = Cnn.GetField("SELECT TOP 1 FTDocRun FROM " + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + ".dbo.TCNMCmp WHERE FNHSysCmpId=" + (updateEmpCodeModel.FNHSysCmpId) + " ", WSM.Conn.DB.DataBaseName.DB_SYSTEM, "");
+                    _CmpH = Cnn.GetField("SELECT TOP 1 FTDocRun FROM [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + "].dbo.TCNMCmp WHERE FNHSysCmpId=" + (updateEmpCodeModel.FNHSysCmpId) + " ", WSM.Conn.DB.DataBaseName.DB_MASTER, "");
 
                     string _FNProDay = "";
                     _FNProDay = Cnn.GetField("SELECT  FNProDay FROM  " + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_MASTER) + ".dbo.THRMEmpType WHERE FNHSysCmpId=" + (updateEmpCodeModel.FNHSysCmpId) + " AND FNHSysEmpTypeId=" + (updateEmpCodeModel.FNHSysEmpTypeId) + "", WSM.Conn.DB.DataBaseName.DB_MASTER, "0");
@@ -1303,8 +1321,8 @@ namespace WSMHRAPI.HRFunction
 
                     _Qry = " UPDATE [" + WSM.Conn.DB.GetDataBaseName(WSM.Conn.DB.DataBaseName.DB_HR) + "].dbo.THRMEmployee ";
                     _Qry += Constants.vbCrLf + " SET FTEmpCode = '" + _EmpCode + "'";
-                    _Qry += Constants.vbCrLf + " , FDDateStart ='" + updateEmpCodeModel.FNHSysEmpID + "'";
-                    _Qry += Constants.vbCrLf + " , FDDateProbation =  DATEADD(DAY, " + _FNProDay + ", '" + updateEmpCodeModel.FDDateStart + "') ";
+                    _Qry += Constants.vbCrLf + " , FDDateStart ='" + updateEmpCodeModel.FDDateStart + "'";
+                    _Qry += Constants.vbCrLf + " , FDDateProbation =  CONVERT(NVARCHAR(10),DATEADD(DAY, " + _FNProDay + ", '" + updateEmpCodeModel.FDDateStart + "'),111) ";
                     _Qry += Constants.vbCrLf + " , FTUpdUser ='" + updateEmpCodeModel.username + "'";
                     _Qry += Constants.vbCrLf + " , FDUpdDate =" + FormatDateDB + " ";
                     _Qry += Constants.vbCrLf + " , FTUpdTime =" + FormatTimeDB + " ";

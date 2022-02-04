@@ -11,7 +11,7 @@ using WSMHRAPI.Models;
 
 namespace WSMHRAPI.Controllers
 {
-    public class CreateLeaveController : ApiController
+    public class HRLeaveDecisionController : ApiController
     {
         // GET: api/CreateLeave
         public IEnumerable<string> Get()
@@ -26,51 +26,43 @@ namespace WSMHRAPI.Controllers
         }
 
         // POST: api/CreateLeave
-        public IHttpActionResult Post(CreateLeaveRequestModel createleave)
+        public IHttpActionResult Post(CreateEmpModel createEmployee)
         {
             try
             {
-                if (createleave.EmployeeId > 0)
+                if (createEmployee.EmployeeId == 0)
                 {
 
                     //VerrifyData 
 
-                    //string _cmd;
-                    //_cmd = "Exec  dbo.SP_CreateLeave ";
-                    //_cmd += "  @EmpId=" + createleave.EmployeeId ;
-                    //_cmd += "  ,@WorkShiftId=" + createleave.WorkShiftId;
-                    //_cmd += "  ,@LeaveTypeId=" + createleave.LeaveTypeId;
-                    //_cmd += "  ,@LeaveMethod=" + createleave.LeaveMethod;
-                    //_cmd += "  ,@StartDate='" + createleave.StartDate + "'";
-                    //_cmd += "  ,@EndDate='" + createleave.EndDate + "'";
-                    //_cmd += "  ,@Remark='" + createleave.Remark + "'";
 
-                    //WSM.Conn.SQLConn wsm = new WSM.Conn.SQLConn();
 
-                    //wsm.ExecuteOnly(_cmd, WSM.Conn.DB.DataBaseName.DB_HR);
-                    byte[] attfile = null;
-                    try
-                    {
-                        attfile = Convert.FromBase64String(createleave.FileBase64);
-                    }
-                    catch (Exception ex) { }
+
+                    //byte[] attfile = null;
+                    //try
+                    //{
+                    //    attfile = Convert.FromBase64String(createleave.FileBase64);
+                    //}
+                    //catch (Exception ex) { }
 
 
                     //  string attfiletype = "";
 
-                    ActionModel a = new ActionModel();
+                    ActionCreateEmpModel a = new ActionCreateEmpModel();
+
+                    int FNHSysEmpID = 0;
+                    string FTEmpCode = "";
                     string msgCode = "";
                     string msgDesc = "";
-                    int NextApprovalID = 0;
 
-                    if (HRClass.CreateLeave(createleave.EmployeeId.ToString(), createleave.WorkShiftId.ToString(), createleave.LeaveTypeId.ToString()
-                        , createleave.LeaveDayState, createleave.LeaveMethod.ToString(), createleave.LeaveMinutes, createleave.StartDate, createleave.EndDate, createleave.StartTime, createleave.EndTime, createleave.Remark, attfile, createleave.ExtentionFile, ref msgCode, ref msgDesc , ref NextApprovalID))
+                    if (HRClass.CreateEmp(createEmployee, ref FNHSysEmpID, ref FTEmpCode, ref msgCode, ref msgDesc))
                     {
                         //Request.CreateResponse(HttpStatusCode.OK);
                         a.Status = true;
                         a.StatusCode = 200;
+                        a.FNHSysEmpID = FNHSysEmpID;
+                        a.FTEmpCode = FTEmpCode;
                         a.Messege = msgDesc;
-                        a.NextApprovalID = NextApprovalID;
                         return Ok(a);
                     }
                     else
@@ -79,7 +71,7 @@ namespace WSMHRAPI.Controllers
                         a.Status = false;
                         a.StatusCode = int.Parse(msgCode);
                         a.Messege = msgDesc;
-                        a.NextApprovalID = 0;
+
 
                       //  Request.CreateResponse(HttpStatusCode.NotFound, a);
                         return Ok(a);

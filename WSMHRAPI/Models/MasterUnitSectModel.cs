@@ -18,5 +18,6 @@ namespace WSMHRAPI.Models
 
         public int FNHSysCmpId { get; set; }
 
+        public string FTStateActive { get; set; }
     }
 }

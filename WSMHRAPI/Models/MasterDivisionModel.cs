@@ -17,5 +17,6 @@ namespace WSMHRAPI.Models
         public string FTRemark { get; set; }
 
         public int FNHSysCmpId { get; set; }
+        public string FTStateActive { get; set; }
     }
 }
